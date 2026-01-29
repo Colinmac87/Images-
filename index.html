@@ -13,23 +13,29 @@
       overflow: hidden;
       background: #f8f8f8;
       font-family: Arial, Helvetica, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
 
     .hotspot-container {
       position: relative;
       width: 100%;
       max-width: 1200px;
-      margin: 0 auto;
+      height: auto;
+      max-height: 100vh;
       background: #fff;
       overflow: hidden;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-      border-radius: 4px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      border-radius: 6px;
     }
 
     .base-image {
       width: 100%;
       height: auto;
+      max-height: 100vh;
       display: block;
+      object-fit: contain;
       user-select: none;
       pointer-events: none;
     }
@@ -77,7 +83,7 @@
 
     .hotspot:hover::before { animation-duration: 2s; }
 
-    /* Modal styles */
+    /* Centered Modal */
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -147,7 +153,7 @@
       loading="lazy"
     />
 
-    <!-- Hotspots with data attributes -->
+    <!-- Hotspots with data attributes for modal -->
     <div class="hotspot" 
          data-title="Add levels / floor plans" 
          data-content="Add levels / floor plans – upload or create additional floor plans for multi-level buildings." 
@@ -192,13 +198,11 @@
 
     hotspots.forEach(spot => {
       spot.addEventListener("click", () => {
-        // Set content first
         modalTitle.textContent = spot.dataset.title || "Information";
         modalContent.textContent = spot.dataset.content || "No description available.";
 
-        // Then show modal
         modal.style.display = "flex";
-        // Small delay for transition to trigger
+        // Trigger animation
         setTimeout(() => modal.classList.add("active"), 10);
       });
 
@@ -211,22 +215,22 @@
     });
 
     // Close handlers
-    closeModalBtn.addEventListener("click", closeModalFunction);
+    closeModalBtn.addEventListener("click", closeModal);
     modal.addEventListener("click", e => {
-      if (e.target === modal) closeModalFunction();
+      if (e.target === modal) closeModal();
     });
 
     document.addEventListener("keydown", e => {
       if (e.key === "Escape" && modal.style.display === "flex") {
-        closeModalFunction();
+        closeModal();
       }
     });
 
-    function closeModalFunction() {
+    function closeModal() {
       modal.classList.remove("active");
       setTimeout(() => {
         modal.style.display = "none";
-      }, 250); // match transition duration
+      }, 250);
     }
   </script>
 </body>
