@@ -12,6 +12,7 @@
       height: 100%;
       overflow: hidden;
       background: #f8f8f8;
+      font-family: Arial, Helvetica, sans-serif;
     }
 
     .hotspot-container {
@@ -20,7 +21,7 @@
       max-width: 1200px;
       margin: 0 auto;
       background: #fff;
-      overflow: hidden;               /* ← clips tooltips that go outside image */
+      overflow: hidden;
       box-shadow: 0 4px 20px rgba(0,0,0,0.15);
       border-radius: 4px;
     }
@@ -33,7 +34,6 @@
       pointer-events: none;
     }
 
-    /* Pulsing hotspot */
     .hotspot {
       position: absolute;
       width: 24px;
@@ -70,154 +70,71 @@
     }
 
     @keyframes pulse-ring {
-      0%   { transform: scale(0.7);  opacity: 0.9; box-shadow: 0 0 0 0 rgba(25,118,210,0.7); }
-      70%  { transform: scale(2.8);  opacity: 0;   box-shadow: 0 0 0 14px rgba(25,118,210,0); }
-      100% { transform: scale(0.7);  opacity: 0; }
+      0%   { transform: scale(0.7); opacity: 0.9; box-shadow: 0 0 0 0 rgba(25,118,210,0.7); }
+      70%  { transform: scale(2.8); opacity: 0;   box-shadow: 0 0 0 14px rgba(25,118,210,0); }
+      100% { transform: scale(0.7); opacity: 0; }
     }
 
     .hotspot:hover::before { animation-duration: 2s; }
 
-    .hotspot.active::after {
-      background: #0d47a1;
-      box-shadow: 0 0 14px #1976d2;
-      transform: translate(-50%, -50%) scale(1.35);
-    }
-
-    /* Tooltip – stays inside container + scrollable if too tall */
-    .tooltip {
-      position: absolute;
+    /* Modal styles */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.65);
       display: none;
-      background: rgba(0,0,0,0.92);
-      color: white;
-      padding: 10px 14px;
-      border-radius: 8px;
-      font-size: 13.5px;
-      font-family: Arial, Helvetica, sans-serif;
-      z-index: 100;
-      pointer-events: auto;              /* allow scrolling inside tooltip */
-      box-shadow: 0 4px 16px rgba(0,0,0,0.35);
-      opacity: 0;
-      transition: opacity 0.18s ease;
-      max-height: 45vh;                  /* never taller than ~45% of viewport */
+      justify-content: center;
+      align-items: center;
+      z-index: 200;
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-content {
+      background: white;
+      color: #333;
+      padding: 28px;
+      border-radius: 12px;
+      max-width: 90%;
+      width: 520px;
+      max-height: 85vh;
       overflow-y: auto;
-      overflow-x: hidden;
-      box-sizing: border-box;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+      position: relative;
+      transform: scale(0.85);
+      opacity: 0;
+      transition: all 0.25s ease;
     }
 
-    .tooltip::-webkit-scrollbar {
-      width: 5px;
-    }
-    .tooltip::-webkit-scrollbar-track {
-      background: rgba(255,255,255,0.08);
-    }
-    .tooltip::-webkit-scrollbar-thumb {
-      background: rgba(255,255,255,0.35);
-      border-radius: 4px;
-    }
-
-    .hotspot.active .tooltip {
-      display: block;
+    .modal-overlay.active .modal-content {
+      transform: scale(1);
       opacity: 1;
     }
 
-    .tooltip::before {
-      content: '';
+    .modal-close {
       position: absolute;
-      border: 8px solid transparent;
+      top: 12px;
+      right: 16px;
+      font-size: 32px;
+      font-weight: bold;
+      color: #888;
+      cursor: pointer;
+      line-height: 1;
     }
 
-    /* Right */
-    .tooltip.right {
-      top: 50%;
-      left: 100%;
-      transform: translateY(-50%);
-      margin-left: 16px;
-    }
-    .tooltip.right::before {
-      top: 50%;
-      right: 100%;
-      transform: translateY(-50%);
-      border-right-color: rgba(0,0,0,0.92);
+    .modal-close:hover {
+      color: #000;
     }
 
-    /* Below */
-    .tooltip.below {
-      top: 100%;
-      left: 50%;
-      transform: translateX(-50%);
-      margin-top: 16px;
-    }
-    .tooltip.below::before {
-      bottom: 100%;
-      left: 50%;
-      transform: translateX(-50%);
-      border-bottom-color: rgba(0,0,0,0.92);
+    .modal-title {
+      margin: 0 0 20px;
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: #1976d2;
     }
 
-    /* Above */
-    .tooltip.above {
-      bottom: 100%;
-      left: 50%;
-      transform: translateX(-50%);
-      margin-bottom: 16px;
-    }
-    .tooltip.above::before {
-      top: 100%;
-      left: 50%;
-      transform: translateX(-50%);
-      border-top-color: rgba(0,0,0,0.92);
-    }
-
-    /* Wrapped text */
-    .tooltip-wrap .tooltip {
-      white-space: normal;
-      max-width: 260px;
-      line-height: 1.48;
-    }
-
-    /* Vertical centering */
-    .tooltip.above,
-    .tooltip.below {
-      left: 50% !important;
-      right: auto !important;
-    }
-
-    /* Fade-in */
-    .tooltip.below {
-      opacity: 0;
-      transform: translateX(-50%) translateY(-10px);
-    }
-    .hotspot.active .tooltip.below {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-
-    .tooltip.above {
-      opacity: 0;
-      transform: translateX(-50%) translateY(10px);
-    }
-    .hotspot.active .tooltip.above {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-
-    /* Right-edge flip */
-    .hotspot.right-edge:not(.above):not(.below) .tooltip {
-      left: auto;
-      right: 100%;
-      margin-right: 16px;
-      margin-left: 0;
-    }
-    .hotspot.right-edge:not(.above):not(.below) .tooltip::before {
-      right: auto;
-      left: 100%;
-      border-right-color: transparent;
-      border-left-color: rgba(0,0,0,0.92);
-    }
-
-    .hotspot:focus {
-      outline: none;
-      box-shadow: 0 0 0 4px rgba(25,118,210,0.35);
+    .modal-body {
+      font-size: 1.05rem;
+      line-height: 1.6;
     }
   </style>
 </head>
@@ -230,101 +147,87 @@
       loading="lazy"
     />
 
-    <!-- Hotspot 1 -->
-    <div class="hotspot" style="top:25%; left:10%;">
-      <div class="tooltip right">Add levels / floor plans and assign to locations</div>
-    </div>
+    <!-- Hotspots with data attributes -->
+    <div class="hotspot" 
+         data-title="Add levels / floor plans" 
+         data-content="Add levels / floor plans – upload or create additional floor plans for multi-level buildings." 
+         style="top:25%; left:10%;"></div>
 
-    <!-- Hotspot 2 -->
-    <div class="hotspot" style="top:40%; left:47%;">
-      <div class="tooltip right">Plotted potentual dropped objects</div>
-    </div>
+    <div class="hotspot" 
+         data-title="Plotted PDO's" 
+         data-content="Plotted PDO's – all potential danger occurrence points already marked on the plan." 
+         style="top:40%; left:47%;"></div>
 
-    <!-- Hotspot 3 -->
-    <div class="hotspot below tooltip-wrap" style="top:9%; left:86%;">
-      <div class="tooltip">
-        View all information on the advanced register – this view includes detailed logs, compliance status, incident history, asset tracking data and more
-      </div>
-    </div>
+    <div class="hotspot" 
+         data-title="Advanced Register" 
+         data-content="View all information on the advanced register – this view includes detailed logs, compliance status, incident history, asset tracking data and more." 
+         style="top:9%; left:86%;"></div>
 
-    <!-- Hotspot 4 -->
-    <div class="hotspot" style="top:90%; left:16%;">
-      <div class="tooltip right">Severity overview per level</div>
-    </div>
+    <div class="hotspot" 
+         data-title="Severity overview per level" 
+         data-content="Severity overview per level – summary of risk levels and severity scores broken down by floor." 
+         style="top:90%; left:16%;"></div>
 
-    <!-- Hotspot 5 – prefers above, auto-flips if needed, stays inside image -->
-    <div class="hotspot above tooltip-wrap" style="top:91%; left:93%;">
-      <div class="tooltip">
-        Place PDO locations & create boundary zones – mark potential danger points and define restricted or monitored boundary areas on the plan.
-      </div>
+    <div class="hotspot" 
+         data-title="PDO Locations & Boundary Zones" 
+         data-content="Place PDO locations & create boundary zones – mark potential danger points and define restricted or monitored boundary areas on the plan." 
+         style="top:91%; left:93%;"></div>
+  </div>
+
+  <!-- Centered Modal -->
+  <div class="modal-overlay" id="modal">
+    <div class="modal-content">
+      <span class="modal-close" id="closeModal">×</span>
+      <h3 class="modal-title" id="modalTitle"></h3>
+      <div class="modal-body" id="modalContent"></div>
     </div>
   </div>
 
   <script>
-    document.querySelectorAll(".hotspot").forEach(hotspot => {
-      hotspot.addEventListener("click", e => {
-        e.stopPropagation();
+    const hotspots = document.querySelectorAll(".hotspot");
+    const modal = document.getElementById("modal");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalContent = document.getElementById("modalContent");
+    const closeModalBtn = document.getElementById("closeModal");
 
-        const rect = hotspot.getBoundingClientRect();
-        const container = hotspot.closest(".hotspot-container");
-        const containerRect = container.getBoundingClientRect();
+    hotspots.forEach(spot => {
+      spot.addEventListener("click", () => {
+        // Set content first
+        modalTitle.textContent = spot.dataset.title || "Information";
+        modalContent.textContent = spot.dataset.content || "No description available.";
 
-        const spaceAbove = rect.top - containerRect.top;
-        const spaceBelow = containerRect.bottom - rect.bottom;
-
-        const tooltip = hotspot.querySelector(".tooltip");
-
-        // Remove previous direction classes
-        tooltip.classList.remove("above", "below", "right");
-
-        // Decide best direction – prefer staying inside
-        if (spaceAbove < 140 && spaceBelow > spaceAbove) {
-          tooltip.classList.add("below");
-        } else if (spaceBelow < 140 && spaceAbove > spaceBelow) {
-          tooltip.classList.add("above");
-        } else {
-          // Keep original or default to right
-          if (hotspot.classList.contains("above")) {
-            tooltip.classList.add("above");
-          } else if (hotspot.classList.contains("below")) {
-            tooltip.classList.add("below");
-          } else {
-            tooltip.classList.add("right");
-          }
-        }
-
-        // Toggle active
-        const willBeOpen = !hotspot.classList.contains("active");
-        document.querySelectorAll(".hotspot.active").forEach(h => {
-          h.classList.remove("active");
-        });
-        if (willBeOpen) {
-          hotspot.classList.add("active");
-        }
+        // Then show modal
+        modal.style.display = "flex";
+        // Small delay for transition to trigger
+        setTimeout(() => modal.classList.add("active"), 10);
       });
 
-      hotspot.addEventListener("keydown", e => {
+      spot.addEventListener("keydown", e => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
-          hotspot.click();
+          spot.click();
         }
       });
     });
 
-    // Close on outside click or Escape
-    document.addEventListener("click", () => {
-      document.querySelectorAll(".hotspot.active").forEach(h => {
-        h.classList.remove("active");
-      });
+    // Close handlers
+    closeModalBtn.addEventListener("click", closeModalFunction);
+    modal.addEventListener("click", e => {
+      if (e.target === modal) closeModalFunction();
     });
 
     document.addEventListener("keydown", e => {
-      if (e.key === "Escape") {
-        document.querySelectorAll(".hotspot.active").forEach(h => {
-          h.classList.remove("active");
-        });
+      if (e.key === "Escape" && modal.style.display === "flex") {
+        closeModalFunction();
       }
     });
+
+    function closeModalFunction() {
+      modal.classList.remove("active");
+      setTimeout(() => {
+        modal.style.display = "none";
+      }, 250); // match transition duration
+    }
   </script>
 </body>
 </html>
