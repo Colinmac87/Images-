@@ -1,119 +1,329 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Interactive Hotspots</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pulsing Hotspots</title>
+  <style>
+    /* Page styling */
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+      margin: 0;
+      min-height: 100vh;
+    }
 
-<style>
-body {
-  font-family: Arial, sans-serif;
-  background: #f5f5f5;
-  padding: 20px;
-  margin: 0;
-}
+    /* Container – sharp corners */
+    .hotspot-container {
+      position: relative;
+      max-width: 900px;
+      margin: 0 auto 40px;
+      background: #ffffff;
+      border-radius: 0;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
 
-/* Container for image + hotspots */
-.hotspot-container {
-  position: relative;
-  max-width: 900px;
-  margin: auto;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
+    /* Base image */
+    .base-image {
+      width: 100%;
+      height: auto;
+      display: block;
+      user-select: none;
+      pointer-events: none;
+    }
 
-/* Base image */
-.base-image {
-  width: 100%;
-  height: auto;
-  display: block;
-  user-select: none;
-  pointer-events: none;
-}
+    /* Pulsing spot */
+    .hotspot {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      user-select: none;
+    }
 
-/* Hotspot circle */
-.hotspot {
-  position: absolute;
-  width: 28px;
-  height: 28px;
-  background: #1976d2;
-  color: #fff;
-  border-radius: 50%;
-  font-size: 18px;
-  font-weight: bold;
-  text-align: center;
-  line-height: 28px;
-  cursor: pointer;
-  transform: translate(-50%, -50%);
-  user-select: none;
+    /* Outer pulsing ring */
+    .hotspot::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: transparent;
+      border: 2px solid #1976d2;
+      border-radius: 50%;
+      opacity: 0.7;
+      animation: pulse-ring 2.8s infinite ease-out;
+      pointer-events: none;
+    }
 
-  /* Pulsing animation */
-  animation: pulse 1.5s infinite;
-}
+    /* Central dot */
+    .hotspot::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 8px;
+      height: 8px;
+      background: #1976d2;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 8px rgba(25, 118, 210, 0.9);
+      pointer-events: none;
+      z-index: 1;
+    }
 
-@keyframes pulse {
-  0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-  50% { transform: translate(-50%, -50%) scale(1.4); opacity: 0.7; }
-  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-}
+    @keyframes pulse-ring {
+      0% {
+        transform: scale(0.8);
+        opacity: 0.9;
+        box-shadow: 0 0 0 0 rgba(25, 118, 210, 0.6);
+      }
+      70% {
+        transform: scale(2.4);
+        opacity: 0;
+        box-shadow: 0 0 0 12px rgba(25, 118, 210, 0);
+      }
+      100% {
+        transform: scale(0.8);
+        opacity: 0;
+      }
+    }
 
-/* Tooltip */
-#tooltip {
-  position: absolute;
-  display: none;
-  background: rgba(0,0,0,0.85);
-  color: #fff;
-  padding: 8px 10px;
-  border-radius: 6px;
-  font-size: 14px;
-  max-width: 220px;
-  z-index: 10;
-  pointer-events: none;
-}
-</style>
+    .hotspot:hover::before {
+      animation-duration: 2.2s;
+    }
+
+    .hotspot.active::after {
+      background: #0d47a1;
+      box-shadow: 0 0 12px #1976d2;
+      transform: translate(-50%, -50%) scale(1.3);
+    }
+
+    /* ──────────────────────────────────────────────
+       Default tooltip (right)
+    ─────────────────────────────────────────────── */
+    .tooltip {
+      position: absolute;
+      top: 50%;
+      left: 100%;
+      transform: translateY(-50%);
+      margin-left: 14px;
+      display: none;
+      background: rgba(0, 0, 0, 0.88);
+      color: #ffffff;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      white-space: nowrap;
+      z-index: 10;
+      pointer-events: none;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+      opacity: 0;
+      transform: translateY(-50%) scale(0.95);
+      transition: all 0.18s ease;
+    }
+
+    .hotspot.active .tooltip {
+      display: block;
+      opacity: 1;
+      transform: translateY(-50%) scale(1);
+    }
+
+    .tooltip::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      right: 100%;
+      transform: translateY(-50%);
+      border: 7px solid transparent;
+      border-right-color: rgba(0, 0, 0, 0.88);
+    }
+
+    /* Below tooltip */
+    .hotspot.below .tooltip {
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      margin-top: 14px;
+      margin-left: 0;
+    }
+
+    .hotspot.below .tooltip::before {
+      top: auto;
+      bottom: 100%;
+      left: 50%;
+      right: auto;
+      transform: translateX(-50%);
+      border: 7px solid transparent;
+      border-bottom-color: rgba(0, 0, 0, 0.88);
+    }
+
+    /* Above tooltip */
+    .hotspot.above .tooltip {
+      bottom: 100%;
+      top: auto;
+      left: 50%;
+      transform: translateX(-50%);
+      margin-bottom: 14px;
+    }
+
+    .hotspot.above .tooltip::before {
+      bottom: auto;
+      top: 100%;
+      left: 50%;
+      right: auto;
+      transform: translateX(-50%);
+      border: 7px solid transparent;
+      border-top-color: rgba(0, 0, 0, 0.88);
+    }
+
+    /* Wrapped text */
+    .hotspot.tooltip-wrap .tooltip {
+      white-space: normal;
+      max-width: 240px;
+      text-align: left;
+      line-height: 1.45;
+      padding: 10px 14px;
+      border-radius: 8px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.28);
+    }
+
+    /* Centering for vertical tooltips */
+    .hotspot.above .tooltip,
+    .hotspot.below .tooltip {
+      left: 50% !important;
+      right: auto !important;
+      margin-left: 0;
+      margin-right: 0;
+    }
+
+    /* Fade-in – below */
+    .hotspot.below .tooltip {
+      opacity: 0;
+      transform: translateX(-50%) translateY(-8px);
+      transition: all 0.2s ease;
+    }
+
+    .hotspot.active.below .tooltip {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Fade-in – above */
+    .hotspot.above .tooltip {
+      opacity: 0;
+      transform: translateX(-50%) translateY(8px);
+      transition: all 0.2s ease;
+    }
+
+    .hotspot.active.above .tooltip {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Right tooltip flip */
+    .hotspot.right-edge:not(.above):not(.below) .tooltip {
+      left: auto;
+      right: 100%;
+      margin-right: 14px;
+      margin-left: 0;
+    }
+
+    .hotspot.right-edge:not(.above):not(.below) .tooltip::before {
+      right: auto;
+      left: 100%;
+      border-right-color: transparent;
+      border-left-color: rgba(0, 0, 0, 0.88);
+    }
+
+    /* Focus style */
+    .hotspot:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.4);
+    }
+  </style>
 </head>
 <body>
+  <h2 style="text-align:center; margin: 30px 0 20px;">Inline Pulsing Hotspots</h2>
 
-<div class="hotspot-container">
-  <!-- Base image -->
-  <img src="https://raw.githubusercontent.com/Colinmac87/Images-/main/Screenshot%202026-01-28%20090149.png" 
-       alt="Plan" class="base-image">
+  <div class="hotspot-container">
+    <img
+      src="https://raw.githubusercontent.com/Colinmac87/Images-/main/Screenshot%202026-01-28%20090149.png"
+      alt="Building/Floor Plan Dashboard"
+      class="base-image"
+      loading="lazy"
+    />
 
-  <!-- 5 Fixed Hotspots -->
-  <div class="hotspot" style="top: 20%; left: 15%;" data-text="Hotspot 1">+</div>
-  <div class="hotspot" style="top: 40%; left: 50%;" data-text="Hotspot 2">+</div>
-  <div class="hotspot" style="top: 55%; left: 70%;" data-text="Hotspot 3">+</div>
-  <div class="hotspot" style="top: 70%; left: 30%;" data-text="Hotspot 4">+</div>
-  <div class="hotspot" style="top: 85%; left: 80%;" data-text="Hotspot 5">+</div>
+    <!-- Hotspot 1 – right -->
+    <div class="hotspot" style="top:25%; left:10%;">
+      <div class="tooltip">Add levels / floor plans</div>
+    </div>
 
-  <!-- Tooltip -->
-  <div id="tooltip"></div>
-</div>
+    <!-- Hotspot 2 – right -->
+    <div class="hotspot" style="top:40%; left:47%;">
+      <div class="tooltip">Plotted PDO's</div>
+    </div>
 
-<script>
-const tooltip = document.getElementById("tooltip");
+    <!-- Hotspot 3 – below + wrapped -->
+    <div class="hotspot below tooltip-wrap" style="top:9%; left:86%;">
+      <div class="tooltip">
+        View all information on the advanced register – this view includes detailed logs, compliance status, incident history, asset tracking data and more.
+      </div>
+    </div>
 
-// Show tooltip on hotspot click
-document.querySelectorAll(".hotspot").forEach(hotspot => {
-  hotspot.addEventListener("click", e => {
-    e.stopPropagation();
-    tooltip.innerText = hotspot.dataset.text;
-    tooltip.style.display = "block";
+    <!-- Hotspot 4 – right -->
+    <div class="hotspot" style="top:90%; left:16%;">
+      <div class="tooltip">Severity overview per level</div>
+    </div>
 
-    const hRect = hotspot.getBoundingClientRect();
-    const cRect = hotspot.parentElement.getBoundingClientRect();
+    <!-- Hotspot 5 – above + wrapped -->
+    <div class="hotspot above tooltip-wrap" style="top:91%; left:93%;">
+      <div class="tooltip">
+        Place PDO locations & boundary zones – mark potential danger points and define restricted or monitored boundary areas on the plan.
+      </div>
+    </div>
+  </div>
 
-    tooltip.style.left = hRect.left - cRect.left + "px";
-    tooltip.style.top = hRect.top - cRect.top + 35 + "px";
-  });
-});
+  <script>
+    document.querySelectorAll(".hotspot").forEach(hotspot => {
+      hotspot.addEventListener("click", e => {
+        e.stopPropagation();
 
-// Hide tooltip on click outside
-document.addEventListener("click", () => {
-  tooltip.style.display = "none";
-});
-</script>
+        const willBeOpen = !hotspot.classList.contains("active");
 
+        document.querySelectorAll(".hotspot.active").forEach(h => {
+          h.classList.remove("active");
+        });
+
+        if (willBeOpen) {
+          hotspot.classList.add("active");
+        } else {
+          hotspot.classList.remove("active");
+        }
+      });
+
+      hotspot.addEventListener("keydown", e => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          hotspot.click();
+        }
+      });
+    });
+
+    document.addEventListener("click", () => {
+      document.querySelectorAll(".hotspot.active").forEach(h => {
+        h.classList.remove("active");
+      });
+    });
+
+    document.addEventListener("keydown", e => {
+      if (e.key === "Escape") {
+        document.querySelectorAll(".hotspot.active").forEach(h => {
+          h.classList.remove("active");
+        });
+      }
+    });
+  </script>
 </body>
 </html>
